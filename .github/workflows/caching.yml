@@ -1,0 +1,40 @@
+name: CI with Caching
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      id: cache-deps
+      with:
+        path: |
+          ~/.cache/pip
+          venv
+        key: cache-fc3c603
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: prime-cache-fc3c603
+      run: |
+        if [ "${{ steps.cache-deps.outputs.cache-hit }}" == "true" ]; then
+          echo "Cache hit - dependencies restored from cache-fc3c603"
+        else
+          echo "Cache miss - dependencies installed and cache saved with key cache-fc3c603"
+        fi
